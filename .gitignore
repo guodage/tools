@@ -1,0 +1,10 @@
+#ignore target/* produces by maven
+target*
+#ignore eclipse config files
+.classpath
+.project
+.settings*
+#ignore IntelliJ IDEA config files
+*.iml
+.idea
+.DS_Store
