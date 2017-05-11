@@ -11,18 +11,20 @@ import java.util.stream.Stream;
  */
 public class CheckMavenCompile {
 
+    private static final String COMMANDS = "compile/package/install/dependency:list";
+
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        System.out.println("批量检查项目maven编译/打包/安装是否通过");
+        System.out.println("批量检查项目maven编译/打包/安装等操作是否通过");
         if (args.length != 2) {
-            System.out.println("参数格式 project_path compile/package/install");
+            System.out.println("参数格式 project_path "+ COMMANDS);
             System.exit(0);
         }
         String dir = args[0];
         String action = args[1];
 
-        if (!("compile".equals(action) || "package".equals(action) || "install".equals(action))) {
-            System.out.println("目前只支持 compile/package/install");
+        if (!Stream.of(COMMANDS.split("/")).anyMatch(str -> str.equals(action))) {
+            System.out.println("目前只支持 "+ COMMANDS);
             System.exit(0);
         }
 
@@ -78,7 +80,7 @@ public class CheckMavenCompile {
 
     private CheckStatus doCheck(File file, String action) throws IOException {
         CheckStatus checkStatus = new CheckStatus();
-        ProcessBuilder pb = new ProcessBuilder("mvn", "clean", action, "-DskipTests");
+        ProcessBuilder pb = new ProcessBuilder("mvn", "clean", action, "-DskipTests", "-Denv=mysql");
         pb.directory(file);
         Process p = pb.start();
         BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
