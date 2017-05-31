@@ -68,7 +68,7 @@ public class MavenBunchDeploy {
      * 构造deploy命令
      * eg:
      * mvn deploy:deploy-file
-     * -Durl=http://pay.cm-dev.cn/nexus/content/repositories/snapshots/
+     * -Durl=xxx
      * -Dfile=./plugin-workctrl-flow-3.2.0-SNAPSHOT.jar
      * -DpomFile=./plugin-workctrl-flow-3.2.0-SNAPSHOT.pom  注意:pom中很有可能会有来自parent的参数,这个办法pass
      * -DrepositoryId=snapshots
@@ -80,7 +80,7 @@ public class MavenBunchDeploy {
      * -DartifactId=zs-wndc
      * -Dversion=1.0
      * -Dpackaging=jar
-     * -Durl=http://pay.cm-dev.cn/nexus/content/repositories/thirdparty/
+     * -Durl=xxx
      * -Dfile=./zs-wndc-1.0.jar
      * -DrepositoryId=thirdparty
      *
