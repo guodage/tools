@@ -57,6 +57,11 @@ public class MavenBunchDeploy {
         }
         System.out.println("发布失败的项目有:");
         wrongSet.forEach(System.out::println);
+
+        File tmp = new File("tmp");
+        if (tmp.exists()) {
+            tmp.delete();
+        }
     }
 
     /**
