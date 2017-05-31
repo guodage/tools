@@ -37,6 +37,7 @@ public class MvnVersion {
 
         System.out.println("加载指定位置的源码版本");
         Set<String> set = new HashSet<>(700);
+
         MvnVersion mvv = new MvnVersion();
         Stream.of(paths).forEach(path -> {
             try {
@@ -57,7 +58,8 @@ public class MvnVersion {
 
         System.out.println("加载指定位置源码的依赖信息 (目前只过滤特定的关键字)");
         BlockingQueue<Runnable> queue = new ArrayBlockingQueue(100);
-        ConcurrentHashMap.KeySetView dependencySet = ConcurrentHashMap.newKeySet(700);
+//        ConcurrentHashMap.KeySetView dependencySet = ConcurrentHashMap.newKeySet(700);
+        ConcurrentHashMap<String, Set<String>> dependencyMap = new ConcurrentHashMap<>(700);
         ThreadPoolExecutor executor = new ThreadPoolExecutor(5,
                                                              15,
                                                              30,
@@ -65,7 +67,7 @@ public class MvnVersion {
                                                              queue,
                                                              new ThreadPoolExecutor.AbortPolicy());
 
-        Stream.of(paths).forEach(path -> mvv.initAllDependencyInfo(new File(path), dependencySet, executor));
+        Stream.of(paths).forEach(path -> mvv.initAllDependencyInfo(new File(path), dependencyMap, executor));
 
         System.out.println("目前运行任务数\t已完成任务数\t任务总数\t剩余任务数");
         while (true) {
@@ -81,7 +83,13 @@ public class MvnVersion {
         }
 
         System.out.println("缺少的依赖有");
-        dependencySet.stream().filter(info -> !set.contains(info)).forEach(System.out::println);
+        dependencyMap.keySet().stream().filter(info -> !set.contains(info)).forEach(info->{
+            System.out.println(info);
+            System.out.println("\t依赖它的项目:");
+            dependencyMap.get(info).forEach(pj->{
+                System.out.println("\t\t" + pj);
+            });
+        });
     }
 
     /**
@@ -279,19 +287,25 @@ public class MvnVersion {
     /**
      * 初始化给定目录中所有项目所需的依赖信息
      * @param dir 指定目录
-     * @param set 信息会填充到set中
+     * @param map 信息会填充到map中
      * @param executor 异步获取每个Maven项目的依赖信息
      */
-    private void initAllDependencyInfo(File dir, ConcurrentHashMap.KeySetView set, ThreadPoolExecutor executor) {
+    private void initAllDependencyInfo(File dir, ConcurrentHashMap<String, Set<String>> map, ThreadPoolExecutor executor) {
         if (dir.isDirectory()) {
             if (isMavenProject(dir)) {
                 executor.execute(() -> {
                     Set subSet = getPjDependencyInfo(dir);
-                    set.addAll(subSet);
+                    subSet.stream().forEach(info->{
+                        if (!map.containsKey(info)) {
+                            map.put(info.toString(), new HashSet<>(30));
+                        }
+                        Set pj = map.get(info);
+                        pj.add(dir.getAbsolutePath());
+                    });
                 });
             } else {
                 for (File subDir : dir.listFiles()) {
-                    initAllDependencyInfo(subDir, set, executor);
+                    initAllDependencyInfo(subDir, map, executor);
                 }
             }
         }
