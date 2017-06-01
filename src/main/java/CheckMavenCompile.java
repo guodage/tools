@@ -6,12 +6,12 @@ import java.util.concurrent.*;
 import java.util.stream.Stream;
 
 /**
- * 批量检查项目maven编译通过
+ * 批量检查项目maven操作是否通过
  * Created by guodage on 2017/4/5.
  */
 public class CheckMavenCompile {
 
-    private static final String COMMANDS = "compile/package/install/dependency:list";
+    private static final String COMMANDS = "compile/package/install/dependency:list/deploy";
 
 
     public static void main(String[] args) throws IOException, InterruptedException {
